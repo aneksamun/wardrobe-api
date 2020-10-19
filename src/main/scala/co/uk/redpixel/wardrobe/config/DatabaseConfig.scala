@@ -8,4 +8,5 @@ final case class DatabaseConfig(jdbcUrl: URI,
                                 driverClassName: String,
                                 user: UserName,
                                 password: Password,
-                                createSchema: Boolean)
+                                createSchema: Boolean,
+                                threadPoolSize: Int)
