@@ -1,7 +1,6 @@
 package co.uk.redpixel.wardrobe
 
-import cats.data.OptionT
-import cats.effect.{ConcurrentEffect, ContextShift, Timer}
+import cats.effect.{ConcurrentEffect, ContextShift, Sync, Timer}
 import cats.implicits._
 import co.uk.redpixel.wardrobe.config.WardrobeConfig
 import co.uk.redpixel.wardrobe.infrastructure.persistence.Database
@@ -21,7 +20,7 @@ object WardrobeApiServer {
       config <- Stream.eval(WardrobeConfig.load[F]().valueOr(terminate()))
 
       xa = Database.connect[F](config.db)
-      migrateResult <- Stream.eval(Database.createSchema[F](config.db)(xa))
+      _ <- Stream.eval(Database.createSchema[F](config.db)(xa))
 
       client <- BlazeClientBuilder[F](global).stream
 
