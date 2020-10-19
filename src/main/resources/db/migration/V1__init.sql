@@ -1,26 +1,23 @@
-DROP INDEX IF EXISTS clothes_name_idx;
+DROP INDEX IF EXISTS clothes_lower_name_idx;
 DROP TABLE IF EXISTS clothes;
 DROP TABLE IF EXISTS outfits;
 DROP TABLE IF EXISTS categories;
 
 CREATE TABLE outfits
 (
-    id   BIGSERIAL PRIMARY KEY,
-    name TEXT      UNIQUE NOT NULL
+    name TEXT PRIMARY KEY
 );
 
 CREATE TABLE categories
 (
-	id   BIGSERIAL PRIMARY KEY,
-	name TEXT      UNIQUE NOT NULL
+	name TEXT PRIMARY KEY
 );
 
 CREATE TABLE clothes
 (
-	id          BIGSERIAL PRIMARY KEY,
-	name        TEXT      UNIQUE NOT NULL,
-	category_id BIGINT    REFERENCES categories(id),
-	outfit_id   BIGINT    REFERENCES outfits(id)
+	name     TEXT PRIMARY KEY,
+	category TEXT REFERENCES categories(name),
+	outfit   TEXT REFERENCES outfits(name)
 );
 
-CREATE INDEX clothes_name_idx ON clothes ((lower(name)));
+CREATE INDEX clothes_lower_name_idx ON clothes ((lower(name)));
