@@ -1,4 +1,4 @@
-package co.uk.redpixel.wardrobe.infrastructure.persistence
+package co.uk.redpixel.wardrobe.persistence
 
 import cats.Monad
 import cats.effect.{Blocker, ConcurrentEffect, ContextShift, Resource, Sync}
@@ -18,16 +18,16 @@ object Database {
   def createSchema[F[_] : ConcurrentEffect](config: DatabaseConfig)
                                            (resource: Resource[F, HikariTransactor[F]])
                                            (implicit F: Sync[F]): F[Option[MigrationResult]] = {
-     def migrateSchema() = {
-       resource.use { transactor =>
-         transactor.configure { dataSource =>
-           Try(Flyway.configure()
-             .dataSource(dataSource)
-             .load()
-             .migrate()).toEither.some.pure[F]
-         }
-       }
-     }
+    def migrateSchema() = {
+      resource.use { transactor =>
+        transactor.configure { dataSource =>
+          Try(Flyway.configure()
+            .dataSource(dataSource)
+            .load()
+            .migrate()).toEither.some.pure[F]
+        }
+      }
+    }
 
     Monad[F].ifM(F.pure(config.createSchema))(migrateSchema(), F.pure(None))
   }

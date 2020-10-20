@@ -1,11 +1,12 @@
 package co.uk.redpixel.wardrobe
 
-import cats.effect.{ConcurrentEffect, ContextShift, Sync, Timer}
+import cats.effect.{ConcurrentEffect, ContextShift, Timer}
 import cats.implicits._
 import co.uk.redpixel.wardrobe.config.WardrobeConfig
-import co.uk.redpixel.wardrobe.infrastructure.persistence.Database
+import co.uk.redpixel.wardrobe.http.routes.{Clothes, HealthCheck}
+import co.uk.redpixel.wardrobe.infrastructure.persistence._
+import co.uk.redpixel.wardrobe.persistence.Database
 import fs2.Stream
-import org.http4s.client.blaze.BlazeClientBuilder
 import org.http4s.implicits._
 import org.http4s.server.blaze.BlazeServerBuilder
 import org.http4s.server.middleware.Logger
@@ -22,21 +23,13 @@ object WardrobeApiServer {
       xa = Database.connect[F](config.db)
       _ <- Stream.eval(Database.createSchema[F](config.db)(xa))
 
-      client <- BlazeClientBuilder[F](global).stream
+//      clothingAlg = ClothingAlg.impl[F](xa)// ClothesSupply(), CategorySupply(), OutfitSupply())
 
-      helloWorldAlg = HelloWorld.impl[F]
-      jokeAlg = Jokes.impl[F](client)
-
-      // Combine Service Routes into an HttpApp.
-      // Can also be done via a Router if you
-      // want to extract a segments not checked
-      // in the underlying routes.
       httpApp = (
-        WardrobeapiRoutes.helloWorldRoutes[F](helloWorldAlg) <+>
-        WardrobeapiRoutes.jokeRoutes[F](jokeAlg)
+        Clothes.routes[F]() <+>
+        HealthCheck.routes[F]()
       ).orNotFound
 
-      // With Middlewares in place
       finalHttpApp = Logger.httpApp(logHeaders = true, logBody = true)(httpApp)
 
       exitCode <- BlazeServerBuilder[F](global)
