@@ -3,7 +3,9 @@ package co.uk.redpixel.wardrobe.http.routes
 import cats.Monad
 import cats.effect.Sync
 import cats.implicits.{toTraverseOps, _}
+import io.circe.generic.auto._
 import co.uk.redpixel.wardrobe.data.{Limit, Offset}
+import co.uk.redpixel.wardrobe.http.responses.ImportStatus
 import co.uk.redpixel.wardrobe.persistence.services.ClothingAlg
 import fs2.text.{lines, utf8Decode}
 import org.http4s.EntityDecoder.multipart
@@ -29,12 +31,12 @@ object Clothes {
             .compile
             .foldMonoid
             .flatMap(clothes.add)
-            .flatMap(stream => Ok("Size of items: " + stream))
+            .flatMap(total => Ok(ImportStatus(total)))
         }
-      //      case GET -> Root / "api" / "clothes" / name =>
-      //        for {
-      //          resp <- Ok(name)
-      //        } yield resp
+      case GET -> Root / "api" / "clothes" / name =>
+        for {
+          resp <- Ok(name)
+        } yield resp
       //      case GET -> Root / "api" / "clothes" :? OffsetQueryParam(offset) +& LimitQueryParam(limit) =>
       //        for {
       //          resp <- Ok("OK")

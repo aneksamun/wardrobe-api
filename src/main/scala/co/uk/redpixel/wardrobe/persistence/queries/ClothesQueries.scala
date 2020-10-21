@@ -2,21 +2,22 @@ package co.uk.redpixel.wardrobe.persistence.queries
 
 import cats.implicits.toFunctorOps
 import co.uk.redpixel.wardrobe.data.{Clothes, Limit, Offset}
-import doobie.ConnectionIO
 import doobie.implicits._
+import doobie.{ConnectionIO, Update, Write}
 
 private[persistence] trait ClothesQueries {
 
-  def upsertClothes(clothes: Clothes): ConnectionIO[Unit] = {
-    val maybeCategory = clothes.maybeCategoryName()
-    val maybeOutfit = clothes.maybeOutfitName()
+  implicit val clothesWriter: Write[Clothes] = {
+    Write[(String, Option[String], Option[String])].contramap { fields =>
+      (fields.name, fields.maybeCategoryName(), fields.maybeOutfitName())
+    }
+  }
 
-    sql"""
-         INSERT INTO clothes(name, category, outfit)
-         VALUES (${clothes.name}, $maybeCategory, $maybeOutfit)
-         ON CONFLICT(name)
-         DO UPDATE SET category = $maybeCategory, outfit = $maybeOutfit
-         """.update.run.void
+  def addMultipleClothes(clothes: Vector[Clothes]): ConnectionIO[Int] = {
+    val sql =
+      """INSERT INTO clothes(name, category, outfit) VALUES (?, ?, ?)
+        |ON CONFLICT(name) DO NOTHING""".stripMargin
+    Update[Clothes](sql).updateMany(clothes)
   }
 
   def updateClothes(clothes: Clothes): ConnectionIO[Unit] = {

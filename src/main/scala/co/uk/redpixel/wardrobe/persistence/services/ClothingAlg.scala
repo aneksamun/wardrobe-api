@@ -1,57 +1,46 @@
 package co.uk.redpixel.wardrobe.persistence.services
 
-import cats.Applicative
-import cats.effect.Resource
+import cats.effect.{ConcurrentEffect, Resource}
 import cats.implicits._
-import co.uk.redpixel.wardrobe.data.{Category, Clothes}
-import doobie.hikari.HikariTransactor
-
+import co.uk.redpixel.wardrobe.data.Clothes
 import co.uk.redpixel.wardrobe.persistence.queries._
+import doobie.hikari.HikariTransactor
+import doobie.implicits._
 
 trait ClothingAlg[F[_]] {
 
-  def add(data: Seq[String]): F[Int]
+  def add(data: Vector[String]): F[Int]
 
   def tag(): F[Unit]
 }
 
 object ClothingAlg {
 
-  def impl[F[_] : Applicative](resource: Resource[F, HikariTransactor[F]]): ClothingAlg[F] = new ClothingAlg[F] {
+  def impl[F[_] : ConcurrentEffect](resource: Resource[F, HikariTransactor[F]]): ClothingAlg[F] = new ClothingAlg[F] {
 
-    def add(data: Seq[String]): F[Int] = {
+    def add(data: Vector[String]): F[Int] = {
       import co.uk.redpixel.wardrobe.data.csv._
 
       val clothes = data.as[Clothes]
 
-      resource.use { transactor =>
-        clothes.groupBy(_.category.get).foldLeft(0) { (count, grouped) =>
+      resource.use { xa =>
+        clothes.groupBy(_.category.get).map { grouped =>
           val category = grouped._1
           val clothes = grouped._2
 
-          for {
-            _ <- insertCategory(category)
-            _ <- upsertClothes(clothes)
+          val query = {
+            for {
+              _ <- insertCategory(category)
+              count <- addMultipleClothes(clothes)
+            } yield count
           }
 
+          query.transact(xa)
 
-
-
-
-
-
-          count + clothes.size
+        }.reduceLeft { (x, y) =>
+          (x, y).mapN(_ + _)
         }
       }
-
-//      data.as[Clothes].groupBy(_.category).foldLeft(0) { (count, grouped) =>
-//        val category = grouped._1
-//        val clothes = grouped._2
-//
-//
-//        count + clothes.size
-//
-//      }.pure[F]
     }
 
     def tag(): F[Unit] = ???

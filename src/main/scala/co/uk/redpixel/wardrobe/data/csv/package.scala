@@ -8,15 +8,16 @@ package object csv {
 
   implicit val clothesCsvConverter = new ClothesCsvConverter
 
-  implicit class StringSequenceOps(data: Seq[String]) {
+  implicit class StringSequenceOps(data: Vector[String]) {
 
     lazy val logger = LoggerFactory.getLogger("CSV converter")
 
     @implicitNotFound("No CSV file converter found for entity")
-    def as[A](implicit converter: CsvConverter[A]): Seq[A] = {
+    def as[A](implicit converter: CsvConverter[A]): Vector[A] = {
       data match {
         case x +: xs if converter.hasValidHeader(x) && xs.nonEmpty =>
-          xs.map(converter.convert)
+          xs.filter(!_.isBlank)
+            .map(converter.convert)
             .map {
               case Right(clothes) => Some(clothes)
               case Left(error) =>
@@ -25,7 +26,7 @@ package object csv {
             }
             .filter(_.isDefined)
             .map(_.get)
-        case _ => Seq.empty
+        case _ => Vector.empty
       }
     }
   }
