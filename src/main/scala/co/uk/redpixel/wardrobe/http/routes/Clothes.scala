@@ -3,7 +3,7 @@ package co.uk.redpixel.wardrobe.http.routes
 import cats.Monad
 import cats.effect.Sync
 import cats.implicits.{toTraverseOps, _}
-import co.uk.redpixel.wardrobe.data.{Limit, Offset}
+import co.uk.redpixel.wardrobe.data.{Limit, Offset, Outfit}
 import co.uk.redpixel.wardrobe.http.responses.ImportStatus
 import co.uk.redpixel.wardrobe.persistence.services.ClothingAlg
 import fs2.text.{lines, utf8Decode}
@@ -37,14 +37,15 @@ object Clothes {
         clothes.find(name) >>= (_.fold(NoContent())(content => Ok(content)))
 
       case GET -> Root / "api" / "clothes" :? OffsetQueryParam(offset) +& LimitQueryParam(limit) =>
-        for {
-          resp <- Ok("OK")
-        } yield resp
+        clothes.findAll(offset, limit).flatMap(page => Ok(page))
 
-      //      case r@PUT -> Root / "api" / "clothes" / name / "outfit" =>
-      //        for {
-      //          resp <- Ok("TAG")
-      //        } yield resp
+      case req @ PUT -> Root / "api" / "clothes" / name / "outfit" =>
+        req.decode[Outfit] { outfit =>
+          for {
+            maybeTagged <- clothes.tag(name, outfit)
+            response <- maybeTagged.fold(NoContent())(content => Ok(content))
+          } yield response
+        }
     }
   }
 
@@ -58,5 +59,4 @@ object Clothes {
   object OffsetQueryParam extends QueryParamDecoderMatcher[Offset]("offset")
 
   object LimitQueryParam extends QueryParamDecoderMatcher[Limit]("limit")
-
 }

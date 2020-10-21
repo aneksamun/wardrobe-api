@@ -35,7 +35,7 @@ private[persistence] trait ClothesQueries {
        SELECT name, category, outfit FROM clothes
        WHERE lower(name) = ${name.toLowerCase}
        LIMIT 1
-       """.stripMargin.query[Clothes].option
+       """.query[Clothes].option
 
   def findAllClothes(offset: Offset, limit: Limit): ConnectionIO[Seq[Clothes]] =
     sql"""

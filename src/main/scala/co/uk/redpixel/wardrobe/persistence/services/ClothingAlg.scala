@@ -2,7 +2,7 @@ package co.uk.redpixel.wardrobe.persistence.services
 
 import cats.effect.{ConcurrentEffect, Resource}
 import cats.implicits._
-import co.uk.redpixel.wardrobe.data.{Clothes, Limit, Offset}
+import co.uk.redpixel.wardrobe.data.{Clothes, Limit, Offset, Outfit}
 import co.uk.redpixel.wardrobe.persistence.queries._
 import doobie.hikari.HikariTransactor
 import doobie.implicits._
@@ -11,7 +11,7 @@ trait ClothingAlg[F[_]] {
 
   def add(data: Vector[String]): F[Int]
 
-  def tag(): F[Unit]
+  def tag(name: String, outfit: Outfit): F[Option[Clothes]]
 
   def find(name: String): F[Option[Clothes]]
 
@@ -47,7 +47,19 @@ object ClothingAlg {
       }
     }
 
-    def tag(): F[Unit] = ???
+    def tag(name: String, outfit: Outfit): F[Option[Clothes]] = {
+      resource.use { xa =>
+        def update(clothes: Clothes): F[Option[Clothes]] =
+          (insertOutfit(clothes.outfit.get) *> updateClothes(clothes) *> findClothesByName(clothes.name))
+            .transact(xa)
+
+        for {
+          clothesOpt <- findClothesByName(name).transact(xa)
+          taggedOpt = clothesOpt.map(_.copy(outfit = outfit.some))
+          x <- taggedOpt.map(update).getOrElse(clothesOpt.pure[F])
+        } yield x
+      }
+    }
 
     def find(name: String): F[Option[Clothes]] = {
       resource.use { xa =>
@@ -57,7 +69,7 @@ object ClothingAlg {
 
     def findAll(offset: Offset, limit: Limit): F[Seq[Clothes]] = {
       resource.use { xa =>
-
+        findAllClothes(offset, limit).transact(xa)
       }
     }
   }
