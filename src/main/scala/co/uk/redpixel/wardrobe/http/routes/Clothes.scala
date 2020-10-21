@@ -3,11 +3,11 @@ package co.uk.redpixel.wardrobe.http.routes
 import cats.Monad
 import cats.effect.Sync
 import cats.implicits.{toTraverseOps, _}
-import io.circe.generic.auto._
 import co.uk.redpixel.wardrobe.data.{Limit, Offset}
 import co.uk.redpixel.wardrobe.http.responses.ImportStatus
 import co.uk.redpixel.wardrobe.persistence.services.ClothingAlg
 import fs2.text.{lines, utf8Decode}
+import io.circe.generic.auto._
 import org.http4s.EntityDecoder.multipart
 import org.http4s.circe.CirceEntityCodec._
 import org.http4s.dsl.Http4sDsl
@@ -33,14 +33,14 @@ object Clothes {
             .flatMap(clothes.add)
             .flatMap(total => Ok(ImportStatus(total)))
         }
-      case GET -> Root / "api" / "clothes" / name =>
+      case GET -> Root / "api" / "clothes" / name if !name.isBlank =>
+        clothes.find(name) >>= (_.fold(NoContent())(content => Ok(content)))
+
+      case GET -> Root / "api" / "clothes" :? OffsetQueryParam(offset) +& LimitQueryParam(limit) =>
         for {
-          resp <- Ok(name)
+          resp <- Ok("OK")
         } yield resp
-      //      case GET -> Root / "api" / "clothes" :? OffsetQueryParam(offset) +& LimitQueryParam(limit) =>
-      //        for {
-      //          resp <- Ok("OK")
-      //        } yield resp
+
       //      case r@PUT -> Root / "api" / "clothes" / name / "outfit" =>
       //        for {
       //          resp <- Ok("TAG")

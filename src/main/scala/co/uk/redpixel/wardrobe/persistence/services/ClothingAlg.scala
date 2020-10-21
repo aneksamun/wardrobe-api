@@ -2,7 +2,7 @@ package co.uk.redpixel.wardrobe.persistence.services
 
 import cats.effect.{ConcurrentEffect, Resource}
 import cats.implicits._
-import co.uk.redpixel.wardrobe.data.Clothes
+import co.uk.redpixel.wardrobe.data.{Clothes, Limit, Offset}
 import co.uk.redpixel.wardrobe.persistence.queries._
 import doobie.hikari.HikariTransactor
 import doobie.implicits._
@@ -12,6 +12,10 @@ trait ClothingAlg[F[_]] {
   def add(data: Vector[String]): F[Int]
 
   def tag(): F[Unit]
+
+  def find(name: String): F[Option[Clothes]]
+
+  def findAll(offset: Offset, limit: Limit): F[Seq[Clothes]]
 }
 
 object ClothingAlg {
@@ -44,5 +48,17 @@ object ClothingAlg {
     }
 
     def tag(): F[Unit] = ???
+
+    def find(name: String): F[Option[Clothes]] = {
+      resource.use { xa =>
+        findClothesByName(name).transact(xa)
+      }
+    }
+
+    def findAll(offset: Offset, limit: Limit): F[Seq[Clothes]] = {
+      resource.use { xa =>
+
+      }
+    }
   }
 }
