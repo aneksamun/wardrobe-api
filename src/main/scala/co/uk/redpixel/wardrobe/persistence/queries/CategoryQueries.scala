@@ -1,0 +1,16 @@
+package co.uk.redpixel.wardrobe.persistence.queries
+
+import cats.implicits.toFunctorOps
+import co.uk.redpixel.wardrobe.data.Category
+import doobie.ConnectionIO
+import doobie.implicits._
+
+private[persistence] trait CategoryQueries {
+
+  def insertCategory(category: Category): ConnectionIO[Unit] =
+    sql"""
+         INSERT INTO categories(name)
+         VALUES (${category.name})
+         ON CONFLICT(name) DO NOTHING
+         """.update.run.void
+}

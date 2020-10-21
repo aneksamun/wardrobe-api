@@ -1,4 +1,4 @@
-package co.uk.redpixel.wardrobe.http.search
+package co.uk.redpixel.wardrobe.data
 
 final case class Offset(value: Int) extends AnyVal
 

@@ -1,4 +1,4 @@
-package co.uk.redpixel.wardrobe.http.search
+package co.uk.redpixel.wardrobe.data
 
 final case class Limit(value: Int) extends AnyVal
 

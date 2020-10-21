@@ -4,8 +4,8 @@ import cats.effect.{ConcurrentEffect, ContextShift, Timer}
 import cats.implicits._
 import co.uk.redpixel.wardrobe.config.WardrobeConfig
 import co.uk.redpixel.wardrobe.http.routes.{Clothes, HealthCheck}
-import co.uk.redpixel.wardrobe.infrastructure.persistence._
 import co.uk.redpixel.wardrobe.persistence.Database
+import co.uk.redpixel.wardrobe.persistence.services.ClothingAlg
 import fs2.Stream
 import org.http4s.implicits._
 import org.http4s.server.blaze.BlazeServerBuilder
@@ -23,10 +23,10 @@ object WardrobeApiServer {
       xa = Database.connect[F](config.db)
       _ <- Stream.eval(Database.createSchema[F](config.db)(xa))
 
-//      clothingAlg = ClothingAlg.impl[F](xa)// ClothesSupply(), CategorySupply(), OutfitSupply())
+      clothingAlg = ClothingAlg.impl[F](xa)
 
       httpApp = (
-        Clothes.routes[F]() <+>
+        Clothes.routes[F](clothingAlg) <+>
         HealthCheck.routes[F]()
       ).orNotFound
 
