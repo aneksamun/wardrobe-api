@@ -1,11 +1,12 @@
 package co.uk.redpixel.wardrobe
 
 import cats.effect.{ConcurrentEffect, ContextShift, Timer}
-import cats.implicits._
+import cats.syntax.all._
 import co.uk.redpixel.wardrobe.config.WardrobeConfig
-import co.uk.redpixel.wardrobe.http.routes.{Clothes, HealthCheck}
+import co.uk.redpixel.wardrobe.http.route.{Clothes, HealthCheck}
 import co.uk.redpixel.wardrobe.persistence.Database
 import co.uk.redpixel.wardrobe.persistence.services.ClothingAlg
+import eu.timepit.refined.auto._
 import fs2.Stream
 import org.http4s.implicits._
 import org.http4s.server.blaze.BlazeServerBuilder
@@ -18,29 +19,33 @@ object WardrobeApiServer {
 
   def stream[F[_]: ConcurrentEffect](implicit T: Timer[F], C: ContextShift[F]): Stream[F, Nothing] = {
     for {
-      config <- Stream.eval(WardrobeConfig.load[F]().valueOr(terminate()))
+      // configuration
+      config <- Stream.eval(WardrobeConfig.load[F].valueOr(terminate()))
 
-      xa = Database.connect[F](config.db)
-      _ <- Stream.eval(Database.createSchema[F](config.db)(xa))
+      // database
+      xa <- Stream.resource(Database.connect[F](config.db))
+      _  <- Stream.eval(Database.createSchema[F](config.db)(xa))
 
       clothingAlg = ClothingAlg.impl[F](xa)
 
-      httpApp = (
+      // routes
+      routes = (
         Clothes.routes[F](clothingAlg) <+>
         HealthCheck.routes[F]()
       ).orNotFound
 
-      finalHttpApp = Logger.httpApp(logHeaders = true, logBody = true)(httpApp)
+      // request logging
+      httpApp = Logger.httpApp(logHeaders = true, logBody = true)(routes)
 
       exitCode <- BlazeServerBuilder[F](global)
         .bindHttp(config.server.httpPort, "0.0.0.0")
-        .withHttpApp(finalHttpApp)
+        .withHttpApp(httpApp)
         .serve
     } yield exitCode
   }.drain
 
 
   private def terminate(): ConfigReaderFailures => WardrobeConfig = { errors =>
-    throw new IllegalStateException(s"Could not load AppConfig: ${errors.toList.mkString("\n")}")
+    throw new IllegalStateException(s"Configuration read error: ${errors.toList.map(_.description).mkString("\n")}")
   }
 }

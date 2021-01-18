@@ -5,7 +5,7 @@ import co.uk.redpixel.wardrobe.data.Category
 import doobie.ConnectionIO
 import doobie.implicits._
 
-private[persistence] trait CategoryQueries {
+trait CategoryQueries {
 
   def insertCategory(category: Category): ConnectionIO[Unit] =
     sql"""

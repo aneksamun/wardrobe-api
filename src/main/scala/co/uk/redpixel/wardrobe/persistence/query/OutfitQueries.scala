@@ -5,7 +5,7 @@ import co.uk.redpixel.wardrobe.data.Outfit
 import doobie.ConnectionIO
 import doobie.implicits._
 
-private[persistence] trait OutfitQueries {
+trait OutfitQueries {
 
   def insertOutfit(outfit: Outfit): ConnectionIO[Unit] =
     sql"""

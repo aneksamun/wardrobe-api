@@ -1,8 +1,8 @@
 package co.uk.redpixel.wardrobe.config
 
 import java.net.URI
-
 import co.uk.redpixel.wardrobe.config.DatabaseConfig._
+import eu.timepit.refined.types.string.NonEmptyString
 
 final case class DatabaseConfig(jdbcUrl: URI,
                                 driverClassName: String,
@@ -13,7 +13,6 @@ final case class DatabaseConfig(jdbcUrl: URI,
 
 object DatabaseConfig {
 
-  final case class UserName(value: String) extends AnyVal
-
-  final case class Password(value: String) extends AnyVal
+  type UserName = NonEmptyString
+  type Password = NonEmptyString
 }
