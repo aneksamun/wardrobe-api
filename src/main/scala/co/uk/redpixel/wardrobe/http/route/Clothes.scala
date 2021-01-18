@@ -1,10 +1,10 @@
-package co.uk.redpixel.wardrobe.http.routes
+package co.uk.redpixel.wardrobe.http.route
 
 import cats.Monad
 import cats.effect.Sync
 import cats.implicits.{toTraverseOps, _}
 import co.uk.redpixel.wardrobe.data.{Limit, Offset, Outfit}
-import co.uk.redpixel.wardrobe.http.responses.ImportStatus
+import co.uk.redpixel.wardrobe.http.response.ImportStatus
 import co.uk.redpixel.wardrobe.persistence.services.ClothingAlg
 import fs2.text.{lines, utf8Decode}
 import io.circe.generic.auto._

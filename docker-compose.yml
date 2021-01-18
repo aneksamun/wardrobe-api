@@ -3,7 +3,7 @@ version: '3'
 services:
 
   postgres:
-    image: "dock.es.ecg.tools/hub.docker.com/postgres:12-alpine"
+    image: "postgres:13.1-alpine"
     container_name: "wardrobe-db"
     ports:
       - "5432:5432"

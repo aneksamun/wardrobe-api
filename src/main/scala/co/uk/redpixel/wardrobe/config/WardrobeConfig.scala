@@ -2,7 +2,6 @@ package co.uk.redpixel.wardrobe.config
 
 import cats.Applicative
 import cats.data.EitherT
-import cats.implicits.catsSyntaxApplicativeId
 import com.typesafe.config.ConfigFactory
 import pureconfig.error.ConfigReaderFailures
 import pureconfig.syntax.ConfigReaderOps
@@ -10,10 +9,10 @@ import pureconfig.syntax.ConfigReaderOps
 final case class WardrobeConfig(server: ServerConfig, db: DatabaseConfig)
 
 object WardrobeConfig {
-  import syntax._
   import pureconfig.generic.auto._
+  import eu.timepit.refined.pureconfig._
 
-  def load[F[_]: Applicative](): EitherT[F, ConfigReaderFailures, WardrobeConfig] = EitherT {
-    ConfigFactory.load.to[WardrobeConfig].pure[F]
+  def load[F[_]](implicit F: Applicative[F]): EitherT[F, ConfigReaderFailures, WardrobeConfig] = EitherT {
+    F.pure(ConfigFactory.load.to[WardrobeConfig])
   }
 }

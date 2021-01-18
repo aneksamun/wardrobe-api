@@ -1,4 +1,4 @@
-package co.uk.redpixel.wardrobe.http.routes
+package co.uk.redpixel.wardrobe.http.route
 
 import cats.effect.Sync
 import io.circe.generic.auto._

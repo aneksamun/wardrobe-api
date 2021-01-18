@@ -5,7 +5,7 @@ import co.uk.redpixel.wardrobe.data.{Clothes, Limit, Offset}
 import doobie.implicits._
 import doobie.{ConnectionIO, Update, Write}
 
-private[persistence] trait ClothesQueries {
+trait ClothesQueries {
 
   implicit val clothesWriter: Write[Clothes] = {
     Write[(String, Option[String], Option[String])].contramap { fields =>
