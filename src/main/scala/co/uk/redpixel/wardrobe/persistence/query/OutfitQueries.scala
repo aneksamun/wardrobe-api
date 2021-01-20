@@ -1,4 +1,4 @@
-package co.uk.redpixel.wardrobe.persistence.queries
+package co.uk.redpixel.wardrobe.persistence.query
 
 import cats.implicits.toFunctorOps
 import co.uk.redpixel.wardrobe.data.Outfit

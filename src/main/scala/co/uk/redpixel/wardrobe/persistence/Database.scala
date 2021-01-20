@@ -1,7 +1,7 @@
 package co.uk.redpixel.wardrobe.persistence
 
 import cats.Monad
-import cats.effect.{Async, Blocker, ContextShift, Resource, Sync}
+import cats.effect.{Async, Blocker, ContextShift, Resource}
 import cats.implicits.{catsSyntaxApplicativeId, _}
 import co.uk.redpixel.wardrobe.config.DatabaseConfig
 import doobie.ExecutionContexts
@@ -17,7 +17,7 @@ object Database {
 
   def createSchema[F[_]](config: DatabaseConfig)
                         (xa: HikariTransactor[F])
-                        (implicit F: Sync[F]): F[Option[MigrationResult]] = {
+                        (implicit F: Monad[F]): F[Option[MigrationResult]] = {
     def migrateSchema() = {
       xa.configure { dataSource =>
         Try(Flyway.configure()

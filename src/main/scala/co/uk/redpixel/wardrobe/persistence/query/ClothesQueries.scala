@@ -1,7 +1,8 @@
-package co.uk.redpixel.wardrobe.persistence.queries
+package co.uk.redpixel.wardrobe.persistence.query
 
 import cats.implicits.toFunctorOps
-import co.uk.redpixel.wardrobe.data.{Clothes, Limit, Offset}
+import co.uk.redpixel.wardrobe.data.Clothes
+import co.uk.redpixel.wardrobe.data.search.{Limit, Offset}
 import doobie.implicits._
 import doobie.{ConnectionIO, Update, Write}
 
@@ -9,7 +10,7 @@ trait ClothesQueries {
 
   implicit val clothesWriter: Write[Clothes] = {
     Write[(String, Option[String], Option[String])].contramap { fields =>
-      (fields.name, fields.maybeCategoryName(), fields.maybeOutfitName())
+      (fields.name, fields.category.map(_.name), fields.outfit.map(_.name))
     }
   }
 
@@ -21,8 +22,8 @@ trait ClothesQueries {
   }
 
   def updateClothes(clothes: Clothes): ConnectionIO[Unit] = {
-    val maybeCategory = clothes.maybeCategoryName()
-    val maybeOutfit = clothes.maybeOutfitName()
+    val maybeCategory = clothes.category.map(_.name)
+    val maybeOutfit = clothes.outfit.map(_.name)
 
     sql"""
          UPDATE clothes SET category = $maybeCategory, outfit = $maybeOutfit

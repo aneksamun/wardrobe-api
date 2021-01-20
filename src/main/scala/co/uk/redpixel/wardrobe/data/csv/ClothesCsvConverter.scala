@@ -6,18 +6,15 @@ import scala.util.Try
 
 class ClothesCsvConverter extends CsvConverter[Clothes] {
 
-  def hasValidHeader(s: String): Boolean = {
-    val headers = splitLine(s)
-    headers.headOption.contains("name") && headers.lastOption.contains("category")
-  }
+  def hasValidHeader(record: String): Boolean =
+    split(record).containsSlice(Seq("name", "category"))
 
-  def convert(s: String): Either[Throwable, Clothes] =
+  def convert(record: String): Either[Throwable, Clothes] =
     Try {
-      val data = splitLine(s)
+      val entries = split(record)
       Clothes(
-        name = data.head,
-        category = data.lastOption.map(Category)
+        name = entries.head,
+        category = entries.lastOption.map(Category)
       )
     }.toEither
-
 }

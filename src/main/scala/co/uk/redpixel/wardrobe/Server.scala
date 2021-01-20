@@ -5,7 +5,7 @@ import cats.syntax.all._
 import co.uk.redpixel.wardrobe.config.WardrobeConfig
 import co.uk.redpixel.wardrobe.http.route.{Clothes, HealthCheck}
 import co.uk.redpixel.wardrobe.persistence.Database
-import co.uk.redpixel.wardrobe.persistence.services.ClothingAlg
+import co.uk.redpixel.wardrobe.persistence.service.ClothingAlg
 import eu.timepit.refined.auto._
 import fs2.Stream
 import org.http4s.implicits._

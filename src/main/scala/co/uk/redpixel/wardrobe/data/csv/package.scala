@@ -6,28 +6,35 @@ import scala.annotation.implicitNotFound
 
 package object csv {
 
-  implicit val clothesCsvConverter = new ClothesCsvConverter
+  private lazy val logger = LoggerFactory.getLogger("CSV converter")
 
-  implicit class StringSequenceOps(data: Vector[String]) {
-
-    lazy val logger = LoggerFactory.getLogger("CSV converter")
-
-    @implicitNotFound("No CSV file converter found for entity")
-    def as[A](implicit converter: CsvConverter[A]): Vector[A] = {
-      data match {
-        case x +: xs if converter.hasValidHeader(x) && xs.nonEmpty =>
-          xs.filter(!_.isBlank)
-            .map(converter.convert)
-            .map {
-              case Right(clothes) => Some(clothes)
-              case Left(error) =>
-                logger.warn(s"Error parsing CSV line: ${error.getMessage}")
-                None
-            }
-            .filter(_.isDefined)
-            .map(_.get)
-        case _ => Vector.empty
-      }
+  @implicitNotFound("No CSV file converter found for ${A}")
+  def convert[A](records: Vector[String])(implicit converter: CsvConverter[A]): Vector[A] = {
+    records match {
+      case x +: xs if converter.hasValidHeader(x) && xs.nonEmpty =>
+        xs.filter(!_.isBlank)
+          .map(converter.convert)
+          .map {
+            case Right(clothes) => Some(clothes)
+            case Left(error) =>
+              logger.warn(s"Error parsing CSV record: ${error.getMessage}")
+              None
+          }
+          .filter(_.isDefined)
+          .map(_.get)
+      case _ => Vector.empty
     }
+  }
+
+  object syntax {
+
+    implicit class StringSequenceOps(val records: Vector[String]) extends AnyVal {
+      def as[A](implicit viaConverter: CsvConverter[A]): Vector[A] =
+        convert(records)(viaConverter)
+    }
+  }
+
+  object instances {
+    implicit val clothesCsvConverter = new ClothesCsvConverter
   }
 }

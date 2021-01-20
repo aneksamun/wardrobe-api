@@ -2,10 +2,11 @@ package co.uk.redpixel.wardrobe.http.route
 
 import cats.Monad
 import cats.effect.Sync
-import cats.implicits.{toTraverseOps, _}
-import co.uk.redpixel.wardrobe.data.{Limit, Offset, Outfit}
-import co.uk.redpixel.wardrobe.http.response.ImportStatus
-import co.uk.redpixel.wardrobe.persistence.services.ClothingAlg
+import cats.syntax.all._
+import co.uk.redpixel.wardrobe.data.Outfit
+import co.uk.redpixel.wardrobe.data.csv.Report
+import co.uk.redpixel.wardrobe.data.search.{Limit, Offset}
+import co.uk.redpixel.wardrobe.persistence.service.ClothingAlg
 import fs2.text.{lines, utf8Decode}
 import io.circe.generic.auto._
 import org.http4s.EntityDecoder.multipart
@@ -31,8 +32,9 @@ object Clothes {
             .compile
             .foldMonoid
             .flatMap(clothes.add)
-            .flatMap(total => Ok(ImportStatus(total)))
+            .flatMap(total => Ok(Report(total)))
         }
+
       case GET -> Root / "api" / "clothes" / name if !name.isBlank =>
         clothes.find(name) >>= (_.fold(NoContent())(content => Ok(content)))
 

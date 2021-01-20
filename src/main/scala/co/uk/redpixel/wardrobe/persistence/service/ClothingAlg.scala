@@ -1,15 +1,18 @@
-package co.uk.redpixel.wardrobe.persistence.services
+package co.uk.redpixel.wardrobe.persistence.service
 
-import cats.effect.Sync
+import cats.effect.Effect
 import cats.syntax.all._
-import co.uk.redpixel.wardrobe.data.{Clothes, Limit, Offset, Outfit}
-import co.uk.redpixel.wardrobe.persistence.queries._
+import co.uk.redpixel.wardrobe.data.search.{Limit, Offset}
+import co.uk.redpixel.wardrobe.data.{Clothes, Outfit}
+import co.uk.redpixel.wardrobe.persistence.query._
 import doobie.hikari.HikariTransactor
 import doobie.implicits._
 
 trait ClothingAlg[F[_]] {
 
-  def add(data: Vector[String]): F[Int]
+  type Total = Int
+
+  def add(data: Vector[String]): F[Total]
 
   def tag(name: String, outfit: Outfit): F[Option[Clothes]]
 
@@ -20,10 +23,11 @@ trait ClothingAlg[F[_]] {
 
 object ClothingAlg {
 
-  def impl[F[_]: Sync](xa: HikariTransactor[F]): ClothingAlg[F] = new ClothingAlg[F] {
+  def impl[F[_]: Effect](xa: HikariTransactor[F]): ClothingAlg[F] = new ClothingAlg[F] {
 
-    def add(data: Vector[String]): F[Int] = {
-      import co.uk.redpixel.wardrobe.data.csv._
+    def add(data: Vector[String]): F[Total] = {
+      import co.uk.redpixel.wardrobe.data.csv.instances._
+      import co.uk.redpixel.wardrobe.data.csv.syntax._
 
       val clothes = data.as[Clothes]
 
