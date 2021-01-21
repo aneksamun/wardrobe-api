@@ -2,7 +2,7 @@ package co.uk.redpixel.wardrobe.persistence.service
 
 import cats.effect.Effect
 import cats.syntax.all._
-import co.uk.redpixel.wardrobe.data.search.{Limit, Offset}
+import co.uk.redpixel.wardrobe.data.Search.{Limit, Offset}
 import co.uk.redpixel.wardrobe.data.{Clothes, Outfit}
 import co.uk.redpixel.wardrobe.persistence.query._
 import doobie.hikari.HikariTransactor
