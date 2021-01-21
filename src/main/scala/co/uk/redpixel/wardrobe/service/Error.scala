@@ -1,4 +1,4 @@
-package co.uk.redpixel.wardrobe
+package co.uk.redpixel.wardrobe.service
 
 sealed abstract class WardrobeError(message: String)
   extends Exception(message)
