@@ -1,5 +1,5 @@
 package co.uk.redpixel.wardrobe.data
 
 final case class Clothes(name: String,
-                         category: Option[Category] = None,
+                         category: Category,
                          outfit: Option[Outfit] = None)

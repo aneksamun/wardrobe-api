@@ -4,8 +4,7 @@ import cats.effect.{ConcurrentEffect, ContextShift, Timer}
 import cats.syntax.all._
 import co.uk.redpixel.wardrobe.config.WardrobeConfig
 import co.uk.redpixel.wardrobe.http.route.{Clothes, HealthCheck}
-import co.uk.redpixel.wardrobe.persistence.Database
-import co.uk.redpixel.wardrobe.persistence.service.ClothingAlg
+import co.uk.redpixel.wardrobe.persistence.{Database, DoobieClothesStore}
 import eu.timepit.refined.auto._
 import fs2.Stream
 import org.http4s.implicits._
@@ -26,12 +25,12 @@ object WardrobeApiServer {
       xa <- Stream.resource(Database.connect[F](config.db))
       _  <- Stream.eval(Database.createSchema[F](config.db)(xa))
 
-      clothingAlg = ClothingAlg.impl[F](xa)
+      clothesStore = DoobieClothesStore[F](xa)
 
       // routes
       routes = (
-        Clothes.routes[F](clothingAlg) <+>
-        HealthCheck.routes[F]()
+        Clothes.routes[F](clothesStore) <+>
+        HealthCheck.routes[F](clothesStore)
       ).orNotFound
 
       // request logging

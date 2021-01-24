@@ -29,7 +29,7 @@ package object csv {
   object syntax {
 
     implicit class StringSequenceOps(val records: Vector[String]) extends AnyVal {
-      def as[A](implicit viaConverter: CsvConverter[A]): Vector[A] =
+      def to[A](implicit viaConverter: CsvConverter[A]): Vector[A] =
         convert(records)(viaConverter)
     }
   }
