@@ -16,7 +16,7 @@ CREATE TABLE categories
 CREATE TABLE clothes
 (
 	name     TEXT PRIMARY KEY,
-	category TEXT REFERENCES categories(name),
+	category TEXT REFERENCES categories(name) NOT NULL,
 	outfit   TEXT REFERENCES outfits(name)
 );
 

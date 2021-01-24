@@ -14,7 +14,7 @@ class ClothesCsvConverter extends CsvConverter[Clothes] {
       val entries = split(record)
       Clothes(
         name = entries.head,
-        category = entries.lastOption.map(Category)
+        category = Category(name = entries.last)
       )
     }.toEither
 }

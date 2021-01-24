@@ -3,7 +3,7 @@ package co.uk.redpixel.wardrobe
 import cats.effect.{ConcurrentEffect, ContextShift, Timer}
 import cats.syntax.all._
 import co.uk.redpixel.wardrobe.config.WardrobeConfig
-import co.uk.redpixel.wardrobe.http.route.{Clothes, HealthCheck}
+import co.uk.redpixel.wardrobe.http.route.{Clothing, HealthCheck}
 import co.uk.redpixel.wardrobe.persistence.{Database, DoobieClothesStore}
 import eu.timepit.refined.auto._
 import fs2.Stream
@@ -29,7 +29,7 @@ object WardrobeApiServer {
 
       // routes
       routes = (
-        Clothes.routes[F](clothesStore) <+>
+        Clothing.routes[F](clothesStore) <+>
         HealthCheck.routes[F](clothesStore)
       ).orNotFound
 

@@ -19,7 +19,7 @@ import org.http4s.dsl.Http4sDsl
 import org.http4s.dsl.impl.QueryParamDecoderMatcher
 import org.http4s.multipart.Part
 
-object Clothes {
+object Clothing {
 
   def routes[F[_] : Sync : Monad](clothesStore: ClothesStore[F]): HttpRoutes[F] = {
     val dsl = new Http4sDsl[F] {}
@@ -34,7 +34,7 @@ object Clothes {
             .traverse(_.body.through(utf8Decode).through(lines))
             .compile
             .foldMonoid
-            .map(_.to[Clothes])
+            .map(_.into[Clothes])
             .flatMap(clothesStore.add)
             .flatMap(total => Ok(Report(total)))
         }
@@ -43,10 +43,12 @@ object Clothes {
         clothesStore.find(name).foldF(NoContent())(Ok(_))
 
       case GET -> Root / "api" / "clothes" :? OffsetQueryParam(offset) +& LimitQueryParam(limit) =>
-        for {
-          items <- clothesStore.findAll(offset, limit)
-          total <- clothesStore.countAll()
-        } yield Ok(SearchPage(items, total))
+        Ok {
+          for {
+            items <- clothesStore.findAll(offset, limit)
+            total <- clothesStore.countAll()
+          } yield SearchPage(items, total)
+        }
 
       case req @ PUT -> Root / "api" / "clothes" / name / "outfit" =>
         req.decode[Outfit](outfit =>
