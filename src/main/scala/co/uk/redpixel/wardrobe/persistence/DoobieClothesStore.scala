@@ -37,16 +37,21 @@ class DoobieClothesStore[F[_] : Effect](xa: HikariTransactor[F]) extends Clothes
   )
 
   def tag(name: String, outfit: Outfit): EitherT[F, OutfitTagError, Clothes] = {
-//    def update(clothes: Clothes): F[Unit] =
-//      (insertOutfitQuery(clothes.outfit.get) *> updateClothesQuery(clothes))
-//        .transact(xa)
-//
-//    for {
-//      clothesOpt <- findClothesByNameQuery(name) transact xa
-//      taggedOpt = clothesOpt.map(_.copy(outfit = outfit.some))
-//      x <- taggedOpt.map(update).getOrElse(clothesOpt.pure[F])
-//    } yield x
-    ???
+    for {
+      clothes <- EitherT.fromOptionF(
+        findClothesByNameQuery(name) transact xa,
+        OutfitTagError(s"A '$name' clothes not found")
+      )
+
+      outfitted <- EitherT.fromEither[F](
+        Either.catchNonFatal {
+          val outfitted = clothes copy (outfit = outfit.some)
+          insertOutfitQuery(outfit) >> updateClothesQuery(outfitted) transact xa
+          outfitted
+        } leftMap(throwable => OutfitTagError(throwable.getMessage))
+      )
+
+    } yield outfitted
   }
 
   def findAll(offset: Offset, limit: Limit): F[Seq[Clothes]] =
@@ -62,7 +67,7 @@ object DoobieClothesStore {
     new DoobieClothesStore[F](xa)
 
   // --ping--
-  def pingQuery: doobie.ConnectionIO[Boolean] =
+  def pingQuery: ConnectionIO[Boolean] =
     sql"SELECT 1"
       .query[Int].map(_ == 1)
       .unique
