@@ -8,7 +8,7 @@ import co.uk.redpixel.wardrobe.data.{Clothes, Outfit}
 import co.uk.redpixel.wardrobe.data.Search.{Limit, Offset}
 import co.uk.redpixel.wardrobe.data.csv.syntax._
 import co.uk.redpixel.wardrobe.data.csv.instances._
-import co.uk.redpixel.wardrobe.http.PosIntQueryParamDecoder
+import co.uk.redpixel.wardrobe.http._
 import co.uk.redpixel.wardrobe.http.serdes.{Report, SearchPage}
 import fs2.text.{lines, utf8Decode}
 import io.circe.generic.auto._
@@ -40,13 +40,13 @@ object Clothing {
         }
 
       case GET -> Root / "api" / "clothes" / name if !name.isBlank =>
-        clothesStore.find(name).foldF(NoContent())(Ok(_))
+        clothesStore.find(name).foldF(NotFound())(Ok(_))
 
       case GET -> Root / "api" / "clothes" :? OffsetQueryParam(offset) +& LimitQueryParam(limit) =>
         Ok {
           for {
             items <- clothesStore.findAll(offset, limit)
-            total <- clothesStore.countAll()
+            total <- clothesStore.countAll
           } yield SearchPage(items, total)
         }
 

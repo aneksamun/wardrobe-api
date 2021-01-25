@@ -15,6 +15,9 @@ class DoobieClothesStore[F[_] : Effect](xa: HikariTransactor[F]) extends Clothes
 
   import DoobieClothesStore._
 
+  def isAlive: F[Boolean] =
+    pingQuery transact xa
+
   def add(clothes: Vector[Clothes]): F[Total] = {
     clothes.groupBy(_.category).map { grouping =>
       val category = grouping._1
@@ -33,13 +36,24 @@ class DoobieClothesStore[F[_] : Effect](xa: HikariTransactor[F]) extends Clothes
     findClothesByNameQuery(name) transact xa
   )
 
+  def tag(name: String, outfit: Outfit): EitherT[F, OutfitTagError, Clothes] = {
+//    def update(clothes: Clothes): F[Unit] =
+//      (insertOutfitQuery(clothes.outfit.get) *> updateClothesQuery(clothes))
+//        .transact(xa)
+//
+//    for {
+//      clothesOpt <- findClothesByNameQuery(name) transact xa
+//      taggedOpt = clothesOpt.map(_.copy(outfit = outfit.some))
+//      x <- taggedOpt.map(update).getOrElse(clothesOpt.pure[F])
+//    } yield x
+    ???
+  }
+
   def findAll(offset: Offset, limit: Limit): F[Seq[Clothes]] =
     findAllClothesQuery(offset, limit) transact xa
 
-  def countAll(): F[Total] =
-    countAllQuery() transact xa
-
-  def tag(name: String, outfit: Outfit): EitherT[F, OutfitTagError, Clothes] = ???
+  def countAll: F[Total] =
+    countAllQuery transact xa
 }
 
 object DoobieClothesStore {
@@ -47,12 +61,41 @@ object DoobieClothesStore {
   def apply[F[_]: Effect](xa: HikariTransactor[F]) =
     new DoobieClothesStore[F](xa)
 
+  // --ping--
+  def pingQuery: doobie.ConnectionIO[Boolean] =
+    sql"SELECT 1"
+      .query[Int].map(_ == 1)
+      .unique
+
+  // --category--
+  def insertCategoryQuery(category: Category): ConnectionIO[Unit] =
+    sql"""
+       INSERT INTO categories(name)
+       VALUES (${category.name})
+       ON CONFLICT(name) DO NOTHING
+       """.update.run.void
+
+  // --outfit--
+  def insertOutfitQuery(outfit: Outfit): ConnectionIO[Unit] =
+    sql"""
+       INSERT INTO outfits(name)
+       VALUES (${outfit.name})
+       ON CONFLICT(name) DO NOTHING
+       """.update.run.void
+
   // --clothes--
   def addMultipleClothesQuery(clothes: Vector[Clothes]): ConnectionIO[Int] =
     Update[Clothes](
-      """INSERT INTO clothes(name, category, outfit) VALUES (?, ?, ?)
+      """INSERT INTO clothes(name, category, outfit)
+        |VALUES (?, ?, ?)
         |ON CONFLICT(name) DO NOTHING""".stripMargin
     ).updateMany(clothes)
+
+  def updateClothesQuery(clothes: Clothes): ConnectionIO[Unit] =
+    sql"""
+       UPDATE clothes SET category = ${clothes.category.name}, outfit = ${clothes.outfit.map(_.name)}
+       WHERE name = ${clothes.name}
+       """.update.run.void
 
   def findClothesByNameQuery(name: String): ConnectionIO[Option[Clothes]] =
     sql"""
@@ -64,20 +107,12 @@ object DoobieClothesStore {
   def findAllClothesQuery(offset: Offset, limit: Limit): ConnectionIO[Seq[Clothes]] =
     sql"""
        SELECT name, category, outfit FROM clothes
-       ORDER BY name
+       ORDER BY name, category
        LIMIT ${limit.value} OFFSET ${offset.value}
        """.query[Clothes].to[Seq]
 
-  def countAllQuery(): ConnectionIO[Total] =
+  def countAllQuery: ConnectionIO[Total] =
     sql"SELECT count(*) FROM clothes"
       .query[Total]
       .unique
-
-  // --category--
-  def insertCategoryQuery(category: Category): ConnectionIO[Unit] =
-    sql"""
-       INSERT INTO categories(name)
-       VALUES (${category.name})
-       ON CONFLICT(name) DO NOTHING
-       """.update.run.void
 }

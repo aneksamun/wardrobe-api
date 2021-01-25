@@ -1,8 +1,10 @@
 package co.uk.redpixel.wardrobe.http.route
 
 import cats.effect.Sync
+import cats.syntax.all._
 import co.uk.redpixel.wardrobe.algebra.ClothesStore
-import io.circe.generic.auto._
+import io.circe.Json
+import io.circe.syntax._
 import org.http4s.HttpRoutes
 import org.http4s.circe.CirceEntityCodec._
 import org.http4s.dsl.Http4sDsl
@@ -14,10 +16,9 @@ object HealthCheck {
     import dsl._
     HttpRoutes.of[F] {
       case GET -> Root / "internal" / "status" =>
-        Ok(StatusResponse(healthy = true))
+        store.isAlive >>= { status =>
+          Ok(Json.obj("healthy" := status))
+        }
     }
   }
-
-  final case class StatusResponse(healthy: Boolean)
-
 }
