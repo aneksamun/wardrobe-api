@@ -17,7 +17,7 @@ package object csv {
           .map {
             case Right(clothes) => Some(clothes)
             case Left(error) =>
-              logger.warn(s"Error parsing CSV record: ${error.getMessage}")
+              logger.warn(s"Error parsing CSV record: $error")
               None
           }
           .filter(_.isDefined)

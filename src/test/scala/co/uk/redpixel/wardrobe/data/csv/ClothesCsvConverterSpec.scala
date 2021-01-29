@@ -27,8 +27,14 @@ class ClothesCsvConverterSpec extends AnyWordSpec
     }
 
     "determine a bad header" in new Scope {
-      forAll(Gen.listOf(Gen.alphaStr)) { titles =>
+      forAll(Gen.listOf(genNonEmptyString(Gen.alphaChar))) { titles =>
         converter.hasValidHeader(titles.mkString(",")) shouldBe false
+      }
+    }
+
+    "fail convert a invalid record" in new Scope {
+      forAll(Gen.listOfN(1, genNonEmptyString(Gen.alphaChar))) { entries =>
+        converter.convert(entries.mkString(",")).isLeft shouldBe true
       }
     }
   }
