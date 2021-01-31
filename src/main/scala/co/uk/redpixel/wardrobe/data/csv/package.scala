@@ -9,7 +9,7 @@ package object csv {
   private lazy val logger = LoggerFactory.getLogger("CSV converter")
 
   @implicitNotFound("No CSV file converter found for ${A}")
-  def convert[A](records: Vector[String])(implicit converter: CsvConverter[A]): Vector[A] = {
+  def convert[A](records: Seq[String])(implicit converter: CsvConverter[A]): Seq[A] = {
     records match {
       case x +: xs if converter.hasValidHeader(x) && xs.nonEmpty =>
         xs.filter(!_.isBlank)
@@ -22,14 +22,14 @@ package object csv {
           }
           .filter(_.isDefined)
           .map(_.get)
-      case _ => Vector.empty
+      case _ => Seq.empty
     }
   }
 
   object syntax {
 
-    implicit class StringSequenceOps(val records: Vector[String]) extends AnyVal {
-      def into[A](implicit viaConverter: CsvConverter[A]): Vector[A] =
+    implicit class StringSequenceOps(val records: Seq[String]) extends AnyVal {
+      def into[A](implicit viaConverter: CsvConverter[A]): Seq[A] =
         convert(records)(viaConverter)
     }
   }

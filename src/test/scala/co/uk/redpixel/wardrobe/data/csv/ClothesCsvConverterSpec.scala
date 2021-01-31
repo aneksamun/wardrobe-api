@@ -11,12 +11,20 @@ class ClothesCsvConverterSpec extends AnyWordSpec
   with ScalaCheckPropertyChecks
   with Matchers {
 
-  "The clothes CSV converter" should {
-    "determine a valid header" in new Scope {
+  "The CSV header check" should {
+    "succeed for a valid record" in new Scope {
       converter.hasValidHeader("name, category") shouldBe true
     }
 
-    "convert a valid record" in new Scope {
+    "fail for a invalid header" in new Scope {
+      forAll(Gen.listOf(genNonEmptyString(Gen.alphaChar))) { titles =>
+        converter.hasValidHeader(titles.mkString(",")) shouldBe false
+      }
+    }
+  }
+
+  "The clothes CSV file" should {
+    "be successfully parsed" in new Scope {
       forAll(Gen.listOfN(2, genNonEmptyString(Gen.alphaChar))) {
         case entries @ x :: xs :: Nil =>
           converter
@@ -26,13 +34,7 @@ class ClothesCsvConverterSpec extends AnyWordSpec
       }
     }
 
-    "determine a bad header" in new Scope {
-      forAll(Gen.listOf(genNonEmptyString(Gen.alphaChar))) { titles =>
-        converter.hasValidHeader(titles.mkString(",")) shouldBe false
-      }
-    }
-
-    "fail convert a invalid record" in new Scope {
+    "fail to parse" in new Scope {
       forAll(Gen.listOfN(1, genNonEmptyString(Gen.alphaChar))) { entries =>
         converter.convert(entries.mkString(",")).isLeft shouldBe true
       }

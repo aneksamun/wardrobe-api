@@ -18,7 +18,7 @@ class DoobieClothesStore[F[_] : Effect](xa: HikariTransactor[F]) extends Clothes
   def isAlive: F[Boolean] =
     pingQuery transact xa
 
-  def add(clothes: Vector[Clothes]): F[Total] = {
+  def add(clothes: Seq[Clothes]): F[Total] = {
     clothes.groupBy(_.category).map { grouping =>
       val category = grouping._1
       val clothes = grouping._2
@@ -89,7 +89,7 @@ object DoobieClothesStore {
        """.update.run.void
 
   // --clothes--
-  def addMultipleClothesQuery(clothes: Vector[Clothes]): ConnectionIO[Int] =
+  def addMultipleClothesQuery(clothes: Seq[Clothes]): ConnectionIO[Int] =
     Update[Clothes](
       """INSERT INTO clothes(name, category, outfit)
         |VALUES (?, ?, ?)
