@@ -8,7 +8,7 @@ trait ClothesStore[F[_]] {
 
   def isAlive: F[Boolean]
 
-  def add(data: Vector[Clothes]): F[Total]
+  def add(data: Seq[Clothes]): F[Total]
 
   def find(name: String): OptionT[F, Clothes]
 
