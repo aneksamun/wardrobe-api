@@ -5,7 +5,7 @@ import cats.effect.Effect
 import cats.implicits.toFunctorOps
 import cats.syntax.all._
 import co.uk.redpixel.wardrobe.algebra._
-import co.uk.redpixel.wardrobe.data.Search.{Limit, Offset}
+import co.uk.redpixel.wardrobe.data.search.{Limit, Offset}
 import co.uk.redpixel.wardrobe.data.{Category, Clothes, Outfit}
 import doobie.hikari.HikariTransactor
 import doobie.implicits._

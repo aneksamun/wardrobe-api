@@ -9,6 +9,5 @@ trait CsvConverter[A] {
   def convert(record: String): Either[ErrorMessage, A]
 
   def split(record: String): Array[String] =
-    record.split(",")
-          .map(_.trim)
+    record.split(",").map(_.trim)
 }

@@ -2,7 +2,7 @@ package co.uk.redpixel.wardrobe.algebra
 
 import cats.data.{EitherT, OptionT}
 import co.uk.redpixel.wardrobe.data.{Clothes, Outfit}
-import co.uk.redpixel.wardrobe.data.Search.{Limit, Offset}
+import co.uk.redpixel.wardrobe.data.search.{Limit, Offset}
 
 trait ClothesStore[F[_]] {
 

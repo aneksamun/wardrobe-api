@@ -4,10 +4,10 @@ import cats.Monad
 import cats.effect.Sync
 import cats.syntax.all._
 import co.uk.redpixel.wardrobe.algebra.ClothesStore
-import co.uk.redpixel.wardrobe.data.{Clothes, Outfit}
-import co.uk.redpixel.wardrobe.data.Search.{Limit, Offset}
-import co.uk.redpixel.wardrobe.data.csv.syntax._
 import co.uk.redpixel.wardrobe.data.csv.instances._
+import co.uk.redpixel.wardrobe.data.csv.syntax._
+import co.uk.redpixel.wardrobe.data.search.{Limit, Offset}
+import co.uk.redpixel.wardrobe.data.{Clothes, Outfit}
 import co.uk.redpixel.wardrobe.http._
 import co.uk.redpixel.wardrobe.http.serdes.{Report, SearchPage}
 import fs2.text.{lines, utf8Decode}
@@ -43,17 +43,20 @@ object Clothing {
         clothesStore.find(name).foldF(NotFound())(Ok(_))
 
       case GET -> Root / "api" / "clothes" :? OffsetQueryParam(offset) +& LimitQueryParam(limit) =>
-        Ok {
-          for {
-            items <- clothesStore.findAll(offset, limit)
-            total <- clothesStore.countAll
-          } yield SearchPage(items, total)
+        Offset.validator.validate(offset) |+| Limit.validator.validate(limit) match {
+          case None =>
+            Ok {
+              for {
+                items <- clothesStore.findAll(offset, limit)
+                total <- clothesStore.countAll
+              } yield SearchPage(items, total)
+            }
+          case Some(errors) => BadRequest(errors.toList)
         }
 
       case req @ PUT -> Root / "api" / "clothes" / name / "outfit" =>
         req.decode[Outfit](outfit =>
-          clothesStore.tag(name, outfit)
-            .foldF(BadRequest(_), Ok(_))
+          clothesStore.tag(name, outfit).foldF(BadRequest(_), Ok(_))
         )
     }
   }

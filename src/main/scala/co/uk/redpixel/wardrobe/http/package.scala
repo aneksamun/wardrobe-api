@@ -2,10 +2,11 @@ package co.uk.redpixel.wardrobe
 
 import cats.data.ValidatedNel
 import cats.syntax.all._
+import co.uk.redpixel.wardrobe.data.search.{Limit, Offset}
 import eu.timepit.refined.numeric._
 import eu.timepit.refined.refineV
 import eu.timepit.refined.types.all
-import eu.timepit.refined.types.all.{NonNegInt, PosInt}
+import eu.timepit.refined.types.all.PosInt
 import org.http4s.{ParseFailure, QueryParamDecoder, QueryParameterValue}
 
 package object http {
@@ -20,13 +21,13 @@ package object http {
       }
   }
 
-  implicit object NonNegIntQueryParamDecoder extends QueryParamDecoder[NonNegInt] {
+  implicit object LimitParamDecoder extends QueryParamDecoder[Limit] {
+    def decode(value: QueryParameterValue): ValidatedNel[ParseFailure, Limit] =
+      QueryParamDecoder[Int].decode(value).map(Limit(_))
+  }
 
-    def decode(value: QueryParameterValue): ValidatedNel[ParseFailure, all.NonNegInt] =
-      QueryParamDecoder[Int].decode(value).andThen { param =>
-        refineV[NonNegative](param)
-          .leftMap(s => ParseFailure("Must to be greater or equal to 0", s))
-          .toValidatedNel
-      }
+  implicit object OffsetParamDecoder extends QueryParamDecoder[Offset] {
+    def decode(value: QueryParameterValue): ValidatedNel[ParseFailure, Offset] =
+      QueryParamDecoder[Int].decode(value).map(Offset(_))
   }
 }
