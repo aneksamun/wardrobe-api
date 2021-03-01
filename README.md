@@ -1,5 +1,7 @@
 # Wardrobe API
 
+![Build status](https://github.com/aneksamun/wardrobe-api/actions/workflows/scala.yml/badge.svg)
+
 Endpoints to test
 - POST http://localhost:8080/api/clothes - posts CSV file
 - GET http://localhost:8080/api/clothes/{some name} - finds clothes by name
