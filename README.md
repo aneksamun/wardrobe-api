@@ -1,3 +1,7 @@
+# Wardrobe API
+
+![Build status](https://github.com/aneksamun/wardrobe-api/actions/workflows/scala.yml/badge.svg)
+
 Endpoints to test
 - POST http://localhost:8080/api/clothes - posts CSV file
 - GET http://localhost:8080/api/clothes/{some name} - finds clothes by name
@@ -20,15 +24,12 @@ By the default database schema migration is set to true.
 Please check how to post file:
 https://www.google.com/search?q=postman+how+to+send+multipart%2Fform-data+csv&oq=postman+how+to+send+multipart%2Fform-data+csv&aqs=chrome.0.69i59.2394j0j7&sourceid=chrome&ie=UTF-8#kpvalbx=_TDOQX_TUJt-c1fAP4Y6syAw14
 
-###TODO:
-- I haven't done tests. Sorry luck of time. Would like to use Testcontainers (will continue working on it).
-- I wanted to add OpenApi page
-- Paging needed to return total number
+### TODO:
+- Testcontainers (will continue working on it).
+- OpenApi page
 
 Build:
 ```
 sbt compile
 sbt run
 ```
-
-Thanks.
