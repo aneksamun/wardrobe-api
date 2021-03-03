@@ -4,12 +4,10 @@ import co.uk.redpixel.wardrobe.data.{Category, Clothes}
 import co.uk.redpixel.wardrobe.data.csv.instances._
 import co.uk.redpixel.wardrobe.data.csv.syntax._
 import co.uk.redpixel.wardrobe.support.Resources
-import org.scalatest.EitherValues
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 
 class FileParsingSpec extends AnyWordSpec
-  with EitherValues
   with Resources
   with Matchers {
 

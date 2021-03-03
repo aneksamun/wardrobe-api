@@ -9,12 +9,11 @@ import co.uk.redpixel.wardrobe.data.csv.syntax._
 import co.uk.redpixel.wardrobe.data.search.{Limit, Offset}
 import co.uk.redpixel.wardrobe.data.{Clothes, Outfit}
 import co.uk.redpixel.wardrobe.http._
-import co.uk.redpixel.wardrobe.http.serdes.{Report, SearchPage}
+import co.uk.redpixel.wardrobe.http.serdes.{Report, SearchPage, _}
 import fs2.text.{lines, utf8Decode}
 import io.circe.generic.auto._
 import org.http4s.EntityDecoder.multipart
 import org.http4s.HttpRoutes
-import org.http4s.circe.CirceEntityCodec._
 import org.http4s.dsl.Http4sDsl
 import org.http4s.dsl.impl.QueryParamDecoderMatcher
 import org.http4s.multipart.Part
