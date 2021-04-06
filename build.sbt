@@ -6,7 +6,7 @@ val PureConfigRefinedVersion = "0.9.20"
 val ScalaTestScalaCheckVersion = "3.1.0.0-RC2"
 val ScalaCheckVersion = "1.15.2"
 val ScalaTestVersion = "3.2.3"
-val PostgresTestContainerVersion = "0.39.2"
+val TestContainerVersion = "0.39.3"
 val LogbackVersion = "1.2.3"
 val FlywayVersion = "7.0.4"
 
@@ -26,10 +26,11 @@ lazy val root = (project in file("."))
       "io.circe"              %% "circe-generic"                   % CirceVersion,
       "com.github.pureconfig" %% "pureconfig"                      % PureConfigVersion,
       "eu.timepit"            %% "refined-pureconfig"              % PureConfigRefinedVersion,
-      "org.scalatest"         %% "scalatest"                       % ScalaTestVersion             % Test,
-      "org.scalacheck"        %% "scalacheck"                      % ScalaCheckVersion            % Test,
-      "org.scalatestplus"     %% "scalatestplus-scalacheck"        % ScalaTestScalaCheckVersion   % Test,
-      "com.dimafeng"          %% "testcontainers-scala-postgresql" % PostgresTestContainerVersion % Test,
+      "org.scalatest"         %% "scalatest"                       % ScalaTestVersion           % Test,
+      "org.scalacheck"        %% "scalacheck"                      % ScalaCheckVersion          % Test,
+      "org.scalatestplus"     %% "scalatestplus-scalacheck"        % ScalaTestScalaCheckVersion % Test,
+      "com.dimafeng"          %% "testcontainers-scala-scalatest"  % TestContainerVersion       % Test,
+      "com.dimafeng"          %% "testcontainers-scala-postgresql" % TestContainerVersion       % Test,
       "ch.qos.logback"        %  "logback-classic"                 % LogbackVersion,
       "org.flywaydb"          %  "flyway-core"                     % FlywayVersion
     ),
