@@ -27,7 +27,7 @@ trait WardrobeDatabase extends TestContainerForAll {
     test apply databaseContainer
   }
 
-  override def afterContainersStart(db: PostgreSQLContainer): Unit =  {
+  override def afterContainersStart(db: PostgreSQLContainer): Unit = {
 //    Functor[Id].map(DatabaseConfig(
 //      URI.create(db.jdbcUrl),
 //      db.driverClassName,

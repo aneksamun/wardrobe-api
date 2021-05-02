@@ -14,7 +14,7 @@ lazy val root = (project in file("."))
   .settings(
     organization := "co.uk.redpixel",
     name := "wardrobe-api",
-    version := "1.0.0-SNAPSHOT",
+    version := "1.0.0",
     scalaVersion := "2.13.4",
     libraryDependencies ++= Seq(
       "org.http4s"            %% "http4s-blaze-server"             % Http4sVersion,
@@ -35,8 +35,10 @@ lazy val root = (project in file("."))
       "org.flywaydb"          %  "flyway-core"                     % FlywayVersion
     ),
     addCompilerPlugin("org.typelevel" %% "kind-projector"     % "0.10.3"),
-    addCompilerPlugin("com.olegpy"    %% "better-monadic-for" % "0.3.1")
+    addCompilerPlugin("com.olegpy"    %% "better-monadic-for" % "0.3.1"),
+    mainClass in assembly := Some("co.uk.redpixel.wardrobe.Main")
   )
+  .enablePlugins(DockerPlugin)
 
 scalacOptions ++= Seq(
   "-deprecation",
@@ -47,3 +49,16 @@ scalacOptions ++= Seq(
   "-feature",
   "-Xfatal-warnings",
 )
+
+docker / dockerfile := {
+  val artifact = assembly.value
+  val artifactTargetPath = s"/app/${artifact.name}"
+
+  new Dockerfile {
+    from("adoptopenjdk/openjdk11:jdk-11.0.10_9-alpine")
+    workDir("app")
+    add(artifact, artifactTargetPath)
+    entryPoint("java", "-jar", artifactTargetPath)
+    expose(8080)
+  }
+}
