@@ -3,13 +3,14 @@ version: '3'
 services:
   wardrobeApi:
     image: wardrobe-api
-    container_name: "wardrobe-api"
     build:
       context: ./target/docker
-    depends_on:
-      - postgres
+    expose:
+      - 8080
     ports:
       - 8080:8080
+    depends_on:
+      - postgres
     environment:
       - DB_HOST=postgres
       - DB_PORT=5432

@@ -11,7 +11,9 @@ val LogbackVersion = "1.2.3"
 val FlywayVersion = "7.0.4"
 
 lazy val root = (project in file("."))
+  .configs(IntegrationTest)
   .settings(
+    Defaults.itSettings,
     organization := "co.uk.redpixel",
     name := "wardrobe-api",
     version := "1.0.0",
