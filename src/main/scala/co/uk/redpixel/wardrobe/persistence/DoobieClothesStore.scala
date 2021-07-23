@@ -113,7 +113,7 @@ object DoobieClothesStore {
     sql"""
        SELECT name, category, outfit FROM clothes
        ORDER BY name, category
-       LIMIT ${limit.value} OFFSET ${offset.value}
+       LIMIT ${limit.value} OFFSET ${offset * limit}
        """.query[Clothes].to[Seq]
 
   def countAllQuery: ConnectionIO[Total] =

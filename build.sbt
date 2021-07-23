@@ -3,6 +3,7 @@ val DoobieVersion = "0.10.0"
 val CirceVersion = "0.14.0-M3"
 val PureConfigVersion = "0.14.0"
 val PureConfigRefinedVersion = "0.9.20"
+val SttpClientVersion = "3.3.6"
 val ScalaTestScalaCheckVersion = "3.1.0.0-RC2"
 val ScalaCheckVersion = "1.15.2"
 val ScalaTestVersion = "3.2.3"
@@ -17,24 +18,26 @@ lazy val root = (project in file("."))
     organization := "co.uk.redpixel",
     name := "wardrobe-api",
     version := "1.0.0",
-    scalaVersion := "2.13.4",
+    scalaVersion := "2.13.6",
     libraryDependencies ++= Seq(
-      "org.http4s"            %% "http4s-blaze-server"             % Http4sVersion,
-      "org.http4s"            %% "http4s-circe"                    % Http4sVersion,
-      "org.http4s"            %% "http4s-dsl"                      % Http4sVersion,
-      "org.tpolecat"          %% "doobie-core"                     % DoobieVersion,
-      "org.tpolecat"          %% "doobie-postgres"                 % DoobieVersion,
-      "org.tpolecat"          %% "doobie-hikari"                   % DoobieVersion,
-      "io.circe"              %% "circe-generic"                   % CirceVersion,
-      "com.github.pureconfig" %% "pureconfig"                      % PureConfigVersion,
-      "eu.timepit"            %% "refined-pureconfig"              % PureConfigRefinedVersion,
-      "org.scalatest"         %% "scalatest"                       % ScalaTestVersion           % Test,
-      "org.scalacheck"        %% "scalacheck"                      % ScalaCheckVersion          % Test,
-      "org.scalatestplus"     %% "scalatestplus-scalacheck"        % ScalaTestScalaCheckVersion % Test,
-      "com.dimafeng"          %% "testcontainers-scala-scalatest"  % TestContainerVersion       % Test,
-      "com.dimafeng"          %% "testcontainers-scala-postgresql" % TestContainerVersion       % Test,
-      "ch.qos.logback"        %  "logback-classic"                 % LogbackVersion,
-      "org.flywaydb"          %  "flyway-core"                     % FlywayVersion
+      "org.http4s"                    %% "http4s-blaze-server"             % Http4sVersion,
+      "org.http4s"                    %% "http4s-circe"                    % Http4sVersion,
+      "org.http4s"                    %% "http4s-dsl"                      % Http4sVersion,
+      "org.tpolecat"                  %% "doobie-core"                     % DoobieVersion,
+      "org.tpolecat"                  %% "doobie-postgres"                 % DoobieVersion,
+      "org.tpolecat"                  %% "doobie-hikari"                   % DoobieVersion,
+      "io.circe"                      %% "circe-generic"                   % CirceVersion,
+      "com.github.pureconfig"         %% "pureconfig"                      % PureConfigVersion,
+      "eu.timepit"                    %% "refined-pureconfig"              % PureConfigRefinedVersion,
+      "org.scalatest"                 %% "scalatest"                       % ScalaTestVersion           % Test,
+      "org.scalacheck"                %% "scalacheck"                      % ScalaCheckVersion          % Test,
+      "org.scalatestplus"             %% "scalatestplus-scalacheck"        % ScalaTestScalaCheckVersion % Test,
+      "com.dimafeng"                  %% "testcontainers-scala-scalatest"  % TestContainerVersion       % Test,
+      "com.dimafeng"                  %% "testcontainers-scala-postgresql" % TestContainerVersion       % Test,
+      "com.softwaremill.sttp.client3" %% "core"                            % SttpClientVersion          % Test,
+      "com.softwaremill.sttp.client3" %% "circe"                           % SttpClientVersion          % Test,
+      "ch.qos.logback"                %  "logback-classic"                 % LogbackVersion,
+      "org.flywaydb"                  %  "flyway-core"                     % FlywayVersion
     ),
     addCompilerPlugin("org.typelevel" %% "kind-projector"     % "0.10.3"),
     addCompilerPlugin("com.olegpy"    %% "better-monadic-for" % "0.3.1"),

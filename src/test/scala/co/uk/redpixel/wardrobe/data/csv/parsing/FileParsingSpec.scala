@@ -14,7 +14,7 @@ class FileParsingSpec extends AnyWordSpec
   "The clothes parsing" should {
 
     "succeed for a valid CSV file" in {
-      loadResource("clothing.csv").into[Clothes] should be(Seq(
+      load[Clothes]("clothing.csv") should be(Seq(
         Clothes("iSwim Summer Bikini", Category("Bikinis")),
         Clothes("iWalk Blue Jeans", Category("Trousers")),
         Clothes("iWalk Dress Trousers", Category("Trousers")),
@@ -28,11 +28,11 @@ class FileParsingSpec extends AnyWordSpec
     }
 
     "skip invalid records" in {
-      loadResource("bad.csv").into[Clothes] should be(Seq.empty)
+      load[Clothes]("bad.csv") should be(Seq.empty)
     }
 
     "skip irrelevant files" in {
-      loadResource("username.csv").into[Clothes] should be(Seq.empty)
+      load[Clothes]("username.csv") should be(Seq.empty)
     }
   }
 }

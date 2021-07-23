@@ -33,7 +33,7 @@ object Clothing {
             .traverse(_.body.through(utf8Decode).through(lines))
             .compile
             .foldMonoid
-            .map(_.into[Clothes])
+            .map(_.as[Clothes])
             .flatMap(clothesStore.add)
             .flatMap(total => Ok(Report(total)))
         }
